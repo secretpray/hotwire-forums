@@ -3,7 +3,7 @@ class DiscussionsController < ApplicationController
   before_action :set_discussion, only: [:show, :edit, :destroy, :update]
 
   def index
-    @pagy, @discussions = pagy(Discussion.includes(:category).pinned_first)
+    @pagy, @discussions = pagy(Discussion.includes(:category).pinned_first, items: 5)
   end
 
   def show

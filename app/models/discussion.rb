@@ -23,9 +23,7 @@ class Discussion < ApplicationRecord
 
   broadcasts_to :category, inserts_by: :prepend
 
-  after_create_commit -> { broadcast_prepend_to "discussions" }
-  after_update_commit -> { broadcast_replace_to "discussions" }
-  after_destroy_commit -> { broadcast_remove_to "discussions" }
+  broadcasts_to ->(discussion) { :discussions }
 
   def to_param
     "#{id}-#{name.downcase.to_s[0...100]}".parameterize
@@ -57,22 +55,6 @@ class Discussion < ApplicationRecord
       subscription.subscription_type == "optin"
     else
       posts.where(user_id: user.id).any?
-    end
-  end
-
-  def subscribed_reason(user)
-    return "You're not receiving notifications from this thread" if user.nil?
-
-    if subscription = subscription_for(user)
-      if subscription.subscription_type == "optout"
-        "You're ignoring this thread."
-      elsif subscription.subscription_type == "optin"
-        "You're receiving notifications because you've subscribed to this thread."
-      end
-    elsif posts.where(user_id: user.id).any?
-      "You're receiving notifications because you've posted in this thread."
-    else
-      "You're not receiving notifications from this thread"
     end
   end
 end
